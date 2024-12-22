@@ -1,7 +1,28 @@
-<script  setup>
-import CardModules from '@/Components/CardModules.vue';
-import CardPlayer from '@/Components/CardPlayer.vue';
-import CardSupports from '@/Components/CardSupports.vue';
+<script setup>
+import CardModules from '@/Components/ModulesCard.vue'
+import CardPlayer from '@/Components/PlayerCard.vue'
+import CardSupports from '@/Components/SupportsCard.vue'
+import { useSupportStore } from '@/store/supports'
+import { computed, onMounted } from 'vue'
+import { useCourseStore } from '@/store/courses'
+import { watch } from 'vue'
+
+const supportsStore = useSupportStore()
+const supports = computed(() => supportsStore.getSupports)
+
+const coursesStore = useCourseStore()
+const lesson = computed(() => coursesStore.getLesson)
+
+watch( lesson, (newLesson) => {
+    if(newLesson) {
+        supportsStore.setSupportsByLesson(lesson.value.id)
+    }
+})
+
+onMounted(() => {
+    supportsStore.setSupportsByLesson(lesson.value.id)
+})
+
 </script>
 
 <template>
@@ -18,12 +39,12 @@ import CardSupports from '@/Components/CardSupports.vue';
         <div class="content">
             <div class="container">
                 <div class="left">
-                  <CardModules />
+                    <CardModules />
                 </div>
                 <div class="right">
                     <div class="content">
-                    <CardPlayer />
-                    <CardSupports />
+                        <CardPlayer />
+                        <CardSupports :supports="supports" />
                     </div>
                 </div>
             </div>
@@ -31,6 +52,4 @@ import CardSupports from '@/Components/CardSupports.vue';
     </section>
 </template>
 
-<style>
-
-</style>
+<style></style>

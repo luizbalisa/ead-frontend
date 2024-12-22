@@ -4,38 +4,44 @@ import building from '@/Assets/Images/building.jpg'
 import { useNotification } from "@kyvg/vue3-notification";
 import router from '@/Router';
 import { useUserStore } from '@/store/users'
-import { ref,onMounted } from 'vue';
+import { ref } from 'vue';
 
-const userStore = useUserStore()
+const props = defineProps({
+    token: {
+        type: String
+    }
+})
+
+const user = useUserStore()
 const { notify } = useNotification()
 const email = ref('')
 const password = ref('')
-const typeVisiblePassword = ref(false)
+const password_confirmation = ref('')
 
 const loading = ref(false)
+const typeVisiblePassword = ref(false)
 
-
-const auth = () => {
+const resetPassword = () => {
     loading.value = true
-    userStore.auth({
+    user.resetPassword({
         email: email.value,
         password: password.value,
-        device_name: 'web'
+        password_confirmation: password_confirmation.value,
+        token: props.token
     }).then(() => {
-        router.push({name: 'campus.home'})
+        router.push({name: 'auth.login'})
         notify({
             title: 'Sucesso',
-            text: 'Usuário autenticado com sucesso',
+            text: 'Senha redefinida com sucesso',
             type: 'success'
         })
     }).catch((error) => {
-        
-        let message = 'Falha ao autenticar'
+        let message = 'Falha ao redefinir senha'
         if(error.status === 404){
-            message = 'Seu email não foi encontrado'
+            message = 'Tokem inválido'
         }
         if(error.status === 422){
-            message = 'Email ou senha inválidos'
+            message = 'Senhas não conferem'
         }
         notify({
             title: 'Erro',
@@ -46,11 +52,6 @@ const auth = () => {
         loading.value = false
     })
 }
-
-const isGetLogged = () => userStore.getLogged ? router.push({name: 'campus.home'}) : ''
-onMounted(() => {
-    isGetLogged()
-})
 </script>
 <template>
     <section 
@@ -84,7 +85,7 @@ onMounted(() => {
                             ><img src="@/Assets/Images/logo.svg" alt="" />
                         </span>
                         <span>
-                            <p>Seja muito bem vindo(a)!</p>
+                            <p>Seja muito bem vindo(a) novamente!</p>
                         </span>
                         <span class="dots">
                             <span></span>
@@ -101,26 +102,24 @@ onMounted(() => {
                             </div>
                             <div class="groupForm">
                                 <i class="far fa-key"></i>
-                                <input v-model="password" :type="typeVisiblePassword ? 'text' : 'password'" name="password" placeholder="Senha" required>
+                                <input v-model="password" :type="typeVisiblePassword ? 'text' : 'password'" name="password" placeholder="Nova senha" required>
+                                <i  @click="typeVisiblePassword = !typeVisiblePassword" class="far fa-eye buttom"></i>
+                            </div>
+                            <div class="groupForm">
+                                <i class="far fa-key"></i>
+                                <input v-model="password_confirmation" :type="typeVisiblePassword ? 'text' : 'password'" name="password_confirmation" placeholder="Confirme a senha" required>
                                 <i  @click="typeVisiblePassword = !typeVisiblePassword" class="far fa-eye buttom"></i>
                             </div>
                             <button
-                                @click.prevent="auth"
+                                @click.prevent="resetPassword"
                                 :class="[
                                     'btn',
-                                    'primary',
-                                    loading || userStore.getLoadingStore ? 'disabled' : ''
+                                    'primary'
                                 ]"
                                 type="submit">
                                 <span>{{ loading ? 'Entrando...' : 'Entrar' }}</span>
                             </button>
                         </form>
-                        <span>
-                            <p class="fontSmall">
-                                Esqueceu sua senha?
-                                <router-link :to="{name: 'forget.password'}" class="link primary">Clique aqui</router-link>
-                            </p>
-                        </span>
                     </div>
                     <span class="copyright fontSmall">
                         Todos os Direitos reservados - <b>Especializati</b>

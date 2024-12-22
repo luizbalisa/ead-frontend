@@ -1,6 +1,7 @@
 <script setup>
 import bgLogin from '@/Assets/Images/bgLogin.jpg'
 import building from '@/Assets/Images/building.jpg'
+import { useNotification } from "@kyvg/vue3-notification";
 import router from '@/Router'
 import { useUserStore } from '@/store/users'
 import { ref } from 'vue'
@@ -14,10 +15,18 @@ const forgetPassword = () => {
     user.forgetPassword(email.value)
         .then(() => {
             router.push({ name: 'auth.login' })
+            useNotification({
+                title: 'Sucesso',
+                text: 'Um e-mail foi enviado para ' + email.value,
+                type: 'success'
+            })
         })
         .catch((error) => {
-            alert('error.response.data.message')
-            console.log(error)
+            useNotification({
+                title: 'Erro',
+                text: error.data.message,
+                type: 'error'
+            })
         })
         .finally(() => {
             loanding.value = false

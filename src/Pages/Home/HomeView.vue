@@ -1,6 +1,6 @@
 
 <script setup>
-import CardCourse from '@/Components/CardCourse.vue';
+import CardCourse from '@/Components/CoursesCard.vue';
 import imageCard from '@/Assets/teste.jpg';
 </script>
 
